@@ -109,7 +109,7 @@ ai-pr-reviewer/
 | 组件 | 选型 |
 |------|------|
 | 语言 | Python 3.11+ |
-| LLM | DeepSeek-V3（`deepseek-chat`），OpenAI 兼容协议 |
+| LLM | DeepSeek-V4（`deepseek-chat`），OpenAI 兼容协议 |
 | LLM SDK | `openai` 包 |
 | HTTP | `httpx` |
 | CLI | `click` |

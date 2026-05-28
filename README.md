@@ -57,7 +57,7 @@ src/
 
 ### 模型选择
 
-选用 **DeepSeek-V3（deepseek-chat）**：
+选用 **DeepSeek-V4（deepseek-chat）**：
 
 - **成本低** — API 价格约为 GPT-4o 的 1/10，单次 PR 分析仅几分钱
 - **中文好** — 中文理解和生成质量优秀，Review 建议表达自然
@@ -86,7 +86,7 @@ src/
 | 组件 | 选型 |
 |------|------|
 | 语言 | Python 3.11+ |
-| LLM | DeepSeek-V3 |
+| LLM | DeepSeek-V4 |
 | LLM SDK | openai |
 | HTTP | httpx |
 | CLI | click |

@@ -27,7 +27,7 @@ MAX_CHARS_PER_FILE: int = 10_000
 # LLM 配置
 # ---------------------------------------------------------------------------
 LLM_API_BASE: str = "https://api.deepseek.com"
-LLM_MODEL: str = "deepseek-chat"
+LLM_MODEL: str = "deepseek-chat"  # DeepSeek-V4
 LLM_API_KEY: str = os.getenv("DEEPSEEK_API_KEY", "")
 LLM_TEMPERATURE: float = 0.1
 LLM_MAX_TOKENS: int = 4096
