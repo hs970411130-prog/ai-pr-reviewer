@@ -25,10 +25,6 @@ def main(pr_url: str, github_token: str, output_dir: str):
 
     PR_URL: GitHub PR 地址，如 https://github.com/owner/repo/pull/42
     """
-    if not github_token:
-        click.echo("错误: 未设置 GitHub Token。请通过 --github-token 或环境变量 GITHUB_TOKEN 提供。", err=True)
-        sys.exit(1)
-
     if "DEEPSEEK_API_KEY" not in os.environ:
         click.echo("警告: 未设置 DEEPSEEK_API_KEY 环境变量，LLM 调用将失败。", err=True)
 
@@ -43,16 +39,16 @@ def main(pr_url: str, github_token: str, output_dir: str):
         sys.exit(1)
 
     md_file = f"pr-review-{report.pr_metadata.owner}-{report.pr_metadata.repo}-{report.pr_metadata.pr_number}.md"
-    click.echo(f"✅ 报告已生成:")
+    click.echo(f"[OK] 报告已生成:")
     click.echo(f"   Markdown: {os.path.join(os.path.abspath(output_dir), md_file)}")
     click.echo(f"   HTML:     {os.path.join(os.path.abspath(output_dir), md_file.replace('.md', '.html'))}")
 
     # 简要输出
-    click.echo(f"\n📋 摘要: {report.summary}")
-    click.echo(f"⚠️  风险发现: {len(report.risks)} 条")
-    click.echo(f"💡 Review 建议: {len(report.suggestions)} 条")
+    click.echo(f"\n[Summary] 摘要: {report.summary}")
+    click.echo(f"[Risk]  风险发现: {len(report.risks)} 条")
+    click.echo(f"[Suggestion] Review 建议: {len(report.suggestions)} 条")
     if report.skipped_files:
-        click.echo(f"⏭️  跳过文件: {len(report.skipped_files)} 个")
+        click.echo(f"[Skipped]  跳过文件: {len(report.skipped_files)} 个")
 
 
 if __name__ == "__main__":

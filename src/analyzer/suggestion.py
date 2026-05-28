@@ -1,6 +1,7 @@
 ﻿"""Review 建议生成 — 代码可读性、性能、最佳实践等方面的建议。"""
 
 import json
+import re
 
 from src.llm.client import chat, _load_prompt
 from src.models import FileChange, SuggestionFinding
@@ -12,14 +13,26 @@ _PROMPT = _load_prompt("suggestion")
 def analyze(changes: list[FileChange]) -> list[SuggestionFinding]:
     """分析一批代码文件，返回建议列表。"""
     diff_text = _build_diff_text(changes)
-    prompt = _PROMPT.format(diff_text=diff_text)
+    prompt = _PROMPT.replace("{diff_text}", diff_text)
     response = chat(prompt, system="请严格按 JSON 格式输出。").strip()
     response = _extract_json(response)
 
+
+    raw = None
     try:
         raw = json.loads(response)
     except json.JSONDecodeError:
+        # Try to extract JSON array from response
+        m = re.search(r"\[.*\]", response, re.DOTALL)
+        if m:
+            try:
+                raw = json.loads(m.group())
+            except json.JSONDecodeError:
+                pass
+    if raw is None:
         return []
+    if not isinstance(raw, list):
+        raw = [raw]
 
     findings: list[SuggestionFinding] = []
     for item in raw:
@@ -44,11 +57,15 @@ def _build_diff_text(changes: list[FileChange]) -> str:
 
 def _extract_json(text: str) -> str:
     text = text.strip()
-    if text.startswith("```"):
-        lines = text.split("\n")
-        if lines[-1].strip() == "```":
-            lines = lines[1:-1]
-        else:
-            lines = lines[1:]
-        text = "\n".join(lines)
+    # Remove markdown code fences
+    text = re.sub(r"```(?:json)?\s*", "", text)
+    text = re.sub(r"\s*```\s*$", "", text)
+    text = text.strip()
+    # If still has markdown fence inside, try again
+    if "```" in text:
+        text = re.sub(r"```(?:json)?", "", text)
+        text = text.strip()
+    # Wrap single object in array
+    if text.startswith("{") and not text.startswith("[{"):
+        text = "[" + text + "]"
     return text

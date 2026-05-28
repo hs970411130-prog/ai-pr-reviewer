@@ -78,9 +78,10 @@ def run_analysis(
             except Exception as e:
                 batch = futures[future]
                 filenames = [f.filename for f in batch]
-                results.append({
-                    "error": str(e),
-                    "files": filenames,
-                })
+                # Log error but don't inject dict into results -
+                # downstream code expects typed objects (RiskFinding/SuggestionFinding)
+                import logging, traceback
+                logging.warning(f"Analysis failed for {filenames}: {e}")
+                logging.debug(traceback.format_exc())
 
     return results

@@ -35,19 +35,17 @@ class GitHubFetcher(BaseFetcher):
 
     def __init__(self, token: str = ""):
         self._token = token or GITHUB_TOKEN
-        if not self._token:
-            raise ValueError(
-                "GitHub Token 未设置。请设置环境变量 GITHUB_TOKEN"
-                "或通过 CLI 参数 --github-token 传入"
-            )
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "ai-pr-reviewer",
+        }
+        if self._token:
+            headers["Authorization"] = f"Bearer {self._token}"
         self._client = httpx.Client(
             base_url=GITHUB_API,
-            headers={
-                "Authorization": f"Bearer {self._token}",
-                "Accept": "application/vnd.github.v3+json",
-                "User-Agent": "ai-pr-reviewer",
-            },
+            headers=headers,
             timeout=30,
+            follow_redirects=True,
         )
 
     # ------------------------------------------------------------------

@@ -21,12 +21,12 @@ class TestParsePrUrl(unittest.TestCase):
 
 
 class TestGitHubFetcher(unittest.TestCase):
-    def test_no_token_raises(self):
+    def test_no_token_still_works(self):
         import os
         old = os.environ.pop("GITHUB_TOKEN", None)
         try:
-            with self.assertRaises(ValueError):
-                GitHubFetcher(token="")
+            fetcher = GitHubFetcher(token="")
+            self.assertIsNotNone(fetcher)
         finally:
             if old:
                 os.environ["GITHUB_TOKEN"] = old

@@ -11,14 +11,13 @@ def summarize(meta: PRMetadata, file_changes: list[FileChange]) -> str:
     """
     prompt_template = _load_prompt("summary")
     file_list = _build_file_list(file_changes)
-    prompt = prompt_template.format(
-        title=meta.title,
-        body=meta.body or "(无描述)",
-        author=meta.author,
-        base_branch=meta.base_branch,
-        head_branch=meta.head_branch,
-        file_list=file_list,
-    )
+    prompt = prompt_template
+    prompt = prompt.replace("{title}", meta.title)
+    prompt = prompt.replace("{body}", meta.body or "(无描述)")
+    prompt = prompt.replace("{author}", meta.author)
+    prompt = prompt.replace("{base_branch}", meta.base_branch)
+    prompt = prompt.replace("{head_branch}", meta.head_branch)
+    prompt = prompt.replace("{file_list}", file_list)
     return chat(prompt).strip()
 
 

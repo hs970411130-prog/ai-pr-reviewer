@@ -67,6 +67,7 @@ def _fetch_blame_summaries(
             "User-Agent": "ai-pr-reviewer",
         },
         timeout=15,
+            follow_redirects=True,
     )
 
     result: dict[str, str] = {}
@@ -101,11 +102,10 @@ def _analyze_context(meta: PRMetadata, info: ContextInfo) -> str:
     doc = "\n".join(info.document_changes) or "(无文档变更)"
     blame = "\n".join(f"  {k}: {v}" for k, v in info.file_blame_info.items()) or "(无)"
 
-    prompt = _PROMPT.format(
-        title=meta.title,
-        body=meta.body or "(无)",
-        issues=issues,
-        doc_changes=doc,
-        blame_info=blame,
-    )
+    prompt = _PROMPT
+    prompt = prompt.replace("{title}", meta.title)
+    prompt = prompt.replace("{body}", meta.body or "(无)")
+    prompt = prompt.replace("{issues}", issues)
+    prompt = prompt.replace("{doc_changes}", doc)
+    prompt = prompt.replace("{blame_info}", blame)
     return chat(prompt).strip()
