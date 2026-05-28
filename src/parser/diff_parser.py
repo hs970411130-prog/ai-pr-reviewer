@@ -8,7 +8,7 @@ import re
 from src.models import FileChange
 
 # Unified diff header line patterns
-_HUNK_HEADER_RE = re.compile(r"^@@ -(\d+),?(\d*) \+(\d+),?(\d*) @@")
+_HUNK_HEADER_RE = re.compile(r"^@@ -(\d+),?(\d*) \+(\d+),?(\d*) @@", re.MULTILINE)
 _ADDED_LINE_RE = re.compile(r"^\+(?!\+\+)")
 _REMOVED_LINE_RE = re.compile(r"^-(?!--)")
 

@@ -26,11 +26,10 @@ def generate(report: AnalysisReport) -> str:
         lines.append("")
 
     # 上下文
-    if report.context and report.context.related_issues:
+    if report.context and report.context.analysis_text:
         lines.append("## 上下文分析")
         lines.append("")
-        for issue in report.context.related_issues:
-            lines.append(f"- {issue}")
+        lines.append(report.context.analysis_text)
         lines.append("")
 
     # 风险

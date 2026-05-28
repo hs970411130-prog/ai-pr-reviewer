@@ -81,6 +81,7 @@ class ContextInfo:
     related_issues: list[str] = field(default_factory=list)
     file_blame_info: dict[str, str] = field(default_factory=dict)  # filename -> blame summary
     document_changes: list[str] = field(default_factory=list)
+    analysis_text: str = ""  # LLM analysis text
 
 
 @dataclass

@@ -1,0 +1,3 @@
+﻿click>=8.0
+httpx>=0.24
+openai>=1.0

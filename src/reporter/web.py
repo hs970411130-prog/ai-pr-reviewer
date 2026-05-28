@@ -38,11 +38,8 @@ def generate(report: AnalysisReport) -> str:
     if report.summary:
         html += f"<h2>变更摘要</h2><p>{_escape(report.summary)}</p>"
 
-    if report.context and report.context.related_issues:
-        html += "<h2>上下文分析</h2><ul>"
-        for issue in report.context.related_issues:
-            html += f"<li>{_escape(issue)}</li>"
-        html += "</ul>"
+    if report.context and report.context.analysis_text:
+        html += f"<h2>上下文分析</h2><p>{_escape(report.context.analysis_text)}</p>"
 
     if report.risks:
         html += "<h2>风险发现</h2><table><tr><th>文件</th><th>行号</th><th>类型</th><th>描述</th><th>建议</th><th>置信度</th></tr>"

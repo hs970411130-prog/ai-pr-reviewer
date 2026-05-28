@@ -19,7 +19,7 @@ def enhance(meta: PRMetadata, file_changes: list[FileChange]) -> ContextInfo:
     """
     data = _fetch_context_data(meta, file_changes)
     analysis = _analyze_context(meta, data)
-    data.related_issues = [analysis] if analysis else []
+    data.analysis_text = analysis
     return data
 
 
