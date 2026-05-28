@@ -54,11 +54,12 @@ def run_and_save(pr_url: str, github_token: str = "", output_dir: str = ".") -> 
     md = markdown.generate(report)
     html_content = web.generate(report)
 
-    base = f"pr-review-{report.pr_metadata.owner}-{report.pr_metadata.repo}-{report.pr_metadata.pr_number}"
-
     import os
-    md_path = os.path.join(output_dir, f"{base}.md")
-    html_path = os.path.join(output_dir, f"{base}.html")
+    dir_name = f"{report.pr_metadata.owner}-{report.pr_metadata.repo}-{report.pr_metadata.pr_number}"
+    report_dir = os.path.join(output_dir, dir_name)
+    os.makedirs(report_dir, exist_ok=True)
+    md_path = os.path.join(report_dir, "report.md")
+    html_path = os.path.join(report_dir, "report.html")
 
     with open(md_path, "w", encoding="utf-8") as f:
         f.write(md)

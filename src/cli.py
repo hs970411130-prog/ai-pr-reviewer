@@ -38,10 +38,11 @@ def main(pr_url: str, github_token: str, output_dir: str):
         click.echo(f"分析失败: {e}", err=True)
         sys.exit(1)
 
-    md_file = f"pr-review-{report.pr_metadata.owner}-{report.pr_metadata.repo}-{report.pr_metadata.pr_number}.md"
+    dir_name = f"{report.pr_metadata.owner}-{report.pr_metadata.repo}-{report.pr_metadata.pr_number}"
+    report_dir = os.path.join(os.path.abspath(output_dir), dir_name)
     click.echo(f"[OK] 报告已生成:")
-    click.echo(f"   Markdown: {os.path.join(os.path.abspath(output_dir), md_file)}")
-    click.echo(f"   HTML:     {os.path.join(os.path.abspath(output_dir), md_file.replace('.md', '.html'))}")
+    click.echo(f"   {report_dir}\report.md")
+    click.echo(f"   {report_dir}\report.html")
 
     # 简要输出
     click.echo(f"\n[Summary] 摘要: {report.summary}")
