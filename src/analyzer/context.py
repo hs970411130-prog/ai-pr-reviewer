@@ -1,9 +1,9 @@
 ﻿"""上下文增强 — 内部拆分：拉取 GitHub 数据 + LLM 上下文分析。"""
 
 import httpx
-
 from src.config.settings import GITHUB_TOKEN
 from src.llm.client import chat, _load_prompt
+import re
 from src.models import PRMetadata, FileChange, ContextInfo
 
 GITHUB_API = "https://api.github.com"
@@ -108,4 +108,7 @@ def _analyze_context(meta: PRMetadata, info: ContextInfo) -> str:
     prompt = prompt.replace("{issues}", issues)
     prompt = prompt.replace("{doc_changes}", doc)
     prompt = prompt.replace("{blame_info}", blame)
-    return chat(prompt).strip()
+    result = chat(prompt).strip()
+    # Strip leading markdown headers the LLM might generate
+    result = re.sub(r"^#{1,4}\s*[^\n]*\n+", "", result).strip()
+    return result

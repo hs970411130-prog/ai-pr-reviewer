@@ -1,5 +1,6 @@
 ﻿"""置信度评分与去重 — 对分析结果后处理。"""
 
+import re
 from src.models import RiskFinding, SuggestionFinding
 
 

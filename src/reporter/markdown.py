@@ -1,66 +1,120 @@
-﻿"""Markdown 报告生成器。"""
+"""Markdown report generator."""
 
 from src.models import AnalysisReport
 from src.reporter.confidence import confidence_label
 
 
+def _is_test_file(filename: str) -> bool:
+    parts = filename.lower().replace("\\", "/").split("/")
+    return any(p.startswith("test") or p.endswith("_test") for p in parts)
+
+
 def generate(report: AnalysisReport) -> str:
-    """将分析报告渲染为 Markdown 字符串。"""
     meta = report.pr_metadata
     lines: list[str] = []
 
-    # 标题
-    lines.append(f"# PR Review 报告")
-    lines.append(f"")
+    # Title
+    lines.append(f"# PR Review Report")
+    lines.append("")
     lines.append(f"**PR:** [{meta.title}](https://github.com/{meta.owner}/{meta.repo}/pull/{meta.pr_number})")
-    lines.append(f"**仓库:** {meta.owner}/{meta.repo}  ")
-    lines.append(f"**作者:** {meta.author}  ")
-    lines.append(f"**分支:** {meta.base_branch} ← {meta.head_branch}")
+    lines.append(f"**Repo:** {meta.owner}/{meta.repo}  ")
+    lines.append(f"**Author:** {meta.author}  ")
+    lines.append(f"**Branch:** {meta.base_branch} <- {meta.head_branch}")
     lines.append("")
 
-    # 摘要
+    # PR description
+    if meta.body:
+        lines.append("## PR Description")
+        lines.append("")
+        # Indent to avoid conflict with report structure headers
+        for bline in meta.body.split("\n"):
+            lines.append(f"> {bline}" if bline.strip() else ">")
+        lines.append("")
+
+    # File change list (FIX 3)
+    if report.file_changes:
+        lines.append("## Changed Files")
+        lines.append("")
+        lines.append("| File | Changes |")
+        lines.append("|------|---------|")
+        for fc in report.file_changes:
+            symbol = {"added": "+", "modified": "M", "removed": "-", "renamed": "R"}.get(fc.change_type.value, "?")
+            lines.append(f"| [{symbol}] {fc.filename} | +{fc.additions}/-{fc.deletions} |")
+        lines.append("")
+
+    # Summary
     if report.summary:
-        lines.append("## 变更摘要")
+        lines.append("## Summary")
         lines.append("")
         lines.append(report.summary)
         lines.append("")
 
-    # 上下文
-    if report.context and report.context.analysis_text:
-        lines.append("## 上下文分析")
+    # Context (FIX 4: only show if meaningful)
+    if report.context and report.context.analysis_text :
+        lines.append("## Context")
         lines.append("")
         lines.append(report.context.analysis_text)
         lines.append("")
 
-    # 风险
-    if report.risks:
-        lines.append("## 风险发现")
+    # Risks - split into source and test (FIX 5)
+    source_risks = [r for r in report.risks if not _is_test_file(r.file)]
+    test_risks = [r for r in report.risks if _is_test_file(r.file)]
+
+    if source_risks:
+        lines.append("## Risk Findings")
         lines.append("")
-        lines.append("| 文件 | 行号 | 类型 | 描述 | 建议 | 置信度 |")
-        lines.append("|------|------|------|------|------|--------|")
-        for r in report.risks:
+        lines.append("| File | Line | Type | Description | Suggestion | Confidence |")
+        lines.append("|------|------|------|-------------|------------|------------|")
+        for r in source_risks:
             lines.append(
                 f"| {r.file} | {r.line} | {r.risk_type} | {r.description} "
                 f"| {r.suggestion} | {confidence_label(r.confidence)} |"
             )
         lines.append("")
 
-    # 建议
-    if report.suggestions:
-        lines.append("## Review 建议")
+    if test_risks:
+        lines.append("## Test Code Risks")
         lines.append("")
-        lines.append("| 文件 | 行号 | 类别 | 描述 | 置信度 |")
-        lines.append("|------|------|------|------|--------|")
-        for s in report.suggestions:
+        lines.append("| File | Line | Type | Description | Suggestion | Confidence |")
+        lines.append("|------|------|------|-------------|------------|------------|")
+        for r in test_risks:
+            lines.append(
+                f"| {r.file} | {r.line} | {r.risk_type} | {r.description} "
+                f"| {r.suggestion} | {confidence_label(r.confidence)} |"
+            )
+        lines.append("")
+
+    # Suggestions - split source and test
+    source_sug = [s for s in report.suggestions if not _is_test_file(s.file)]
+    test_sug = [s for s in report.suggestions if _is_test_file(s.file)]
+
+    if source_sug:
+        lines.append("## Review Suggestions")
+        lines.append("")
+        lines.append("| File | Line | Category | Description | Confidence |")
+        lines.append("|------|------|----------|-------------|------------|")
+        for s in source_sug:
             lines.append(
                 f"| {s.file} | {s.line} | {s.category} "
                 f"| {s.description} | {confidence_label(s.confidence)} |"
             )
         lines.append("")
 
-    # 跳过文件
+    if test_sug:
+        lines.append("## Test Code Suggestions")
+        lines.append("")
+        lines.append("| File | Line | Category | Description | Confidence |")
+        lines.append("|------|------|----------|-------------|------------|")
+        for s in test_sug:
+            lines.append(
+                f"| {s.file} | {s.line} | {s.category} "
+                f"| {s.description} | {confidence_label(s.confidence)} |"
+            )
+        lines.append("")
+
+    # Skipped files
     if report.skipped_files:
-        lines.append("## 跳过的文件（过大）")
+        lines.append("## Skipped Files (too large)")
         lines.append("")
         for f in report.skipped_files:
             lines.append(f"- {f}")
