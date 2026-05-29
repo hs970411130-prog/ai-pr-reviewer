@@ -11,3 +11,6 @@ dist/
 # Reports (generated)
 pr-review-*.md
 pr-review-*.html
+
+# Secrets
+.env
