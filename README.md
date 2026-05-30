@@ -18,7 +18,7 @@ cp .env.example .env
 python -m src.cli https://github.com/owner/repo/pull/42
 
 # 4. 或启动 Web UI
-streamlit run app.py
+python -m streamlit run app.py
 ```
 
 ## 功能
@@ -49,7 +49,7 @@ python -m src.cli https://github.com/owner/repo/pull/42 --github-token ghp_xxx
 ### Web UI 模式
 
 ```bash
-streamlit run app.py
+python -m streamlit run app.py
 # 浏览器访问 http://localhost:8501
 # 侧边栏输入 PR 地址 → 点击分析 → 查看进度条和结果
 ```
