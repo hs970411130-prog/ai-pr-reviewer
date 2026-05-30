@@ -104,6 +104,13 @@ ai-pr-reviewer/
 - **自定义规则** — Prompt 模板（`llm/prompts/`）独立于代码，评审规则可灵活调整
 - **CI 集成** — Pipeline 设计为无状态函数，可直接嵌入 GitHub Actions / GitLab CI
 
+
+## 演示视频
+
+[:arrow_forward: 点击观看完整演示](https://www.bilibili.com/video/BV11ZVL6dEsG)
+
+> 视频涵盖：项目简介、CLI 分析、HTML 交互报告、Streamlit Web UI、核心架构、测试展示。
+
 ## 技术栈
 
 | 组件 | 选型 |
