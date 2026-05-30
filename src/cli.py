@@ -1,4 +1,4 @@
-﻿"""CLI 入口。"""
+"""CLI 入口。"""
 
 import os
 import sys
@@ -42,9 +42,9 @@ def main(pr_url: str, github_token: str, output_dir: str):
 
     dir_name = f"{report.pr_metadata.owner}-{report.pr_metadata.repo}-{report.pr_metadata.pr_number}"
     report_dir = os.path.join(os.path.abspath(output_dir), dir_name)
-    click.echo(f"[OK] 报告已生成:")
-    click.echo(f"   {report_dir}\report.md")
-    click.echo(f"   {report_dir}\report.html")
+    click.echo("[OK] 报告已生成:")
+    click.echo(f"   {os.path.join(report_dir, 'report.md')}")
+    click.echo(f"   {os.path.join(report_dir, 'report.html')}")
 
     # 简要输出
     click.echo(f"\n[Summary] 摘要: {report.summary}")
