@@ -9,9 +9,11 @@ load_dotenv()
 
 from src.pipeline import run_and_save
 
+VERSION = "0.1.0"
+
 
 @click.command()
-@click.argument("pr_url")
+@click.argument("pr_url", required=False, default="")
 @click.option(
     "--github-token",
     envvar="GITHUB_TOKEN",
@@ -22,11 +24,23 @@ from src.pipeline import run_and_save
     default=".",
     help="报告输出目录（默认当前目录）",
 )
-def main(pr_url: str, github_token: str, output_dir: str):
+@click.option(
+    "--version", is_flag=True, help="显示版本号"
+)
+def main(pr_url: str, github_token: str, output_dir: str, version: bool):
     """AI PR Review 助手 — 自动分析 GitHub Pull Request。
 
     PR_URL: GitHub PR 地址，如 https://github.com/owner/repo/pull/42
     """
+    if version:
+        click.echo(f"ai-pr-reviewer v{VERSION}")
+        return
+
+    if not pr_url:
+        click.echo("错误: 请提供 PR_URL 参数", err=True)
+        click.echo("用法: python -m src.cli https://github.com/owner/repo/pull/42", err=True)
+        sys.exit(1)
+
     if "DEEPSEEK_API_KEY" not in os.environ:
         click.echo("警告: 未设置 DEEPSEEK_API_KEY 环境变量，LLM 调用将失败。", err=True)
 
