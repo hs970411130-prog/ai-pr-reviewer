@@ -33,7 +33,7 @@ python -m streamlit run app.py
 
 ## 用法
 
-### CLI 模式
+### CLI 模式（在项目根目录下运行）
 
 ```bash
 # 基本用法
@@ -46,7 +46,7 @@ python -m src.cli https://github.com/owner/repo/pull/42 -o ./reports
 python -m src.cli https://github.com/owner/repo/pull/42 --github-token ghp_xxx
 ```
 
-### Web UI 模式
+### Web UI 模式（在项目根目录下运行）
 
 ```bash
 python -m streamlit run app.py
