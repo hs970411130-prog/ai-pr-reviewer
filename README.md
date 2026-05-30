@@ -1,102 +1,121 @@
-# AI PR Review 鍔╂墜
+# AI PR Review 助手
 
-鑷姩鍒嗘瀽 GitHub Pull Request 鐨?AI 浠ｇ爜璇勫宸ュ叿銆傛寚瀹?PR URL锛屼竴閿幏鍙栧彉鏇存憳瑕併€侀闄╄瘑鍒拰 Review 寤鸿銆?
-## 蹇€熷紑濮?
+自动分析 GitHub Pull Request 的 AI 代码评审工具。指定 PR URL，一键获取变更摘要、风险识别和 Review 建议。
+
+## 快速开始
+
 ```bash
-# 1. 鍏嬮殕骞跺畨瑁?git clone https://github.com/hs970411130-prog/ai-pr-reviewer.git
+# 1. 克隆并安装
+git clone https://github.com/hs970411130-prog/ai-pr-reviewer.git
 cd ai-pr-reviewer
 pip install -e .
 
-# 2. 閰嶇疆 API Key锛堝鍒?.env.example 涓?.env 骞跺～鍏ワ級
+# 2. 配置 API Key（复制 .env.example 为 .env 并填入）
 cp .env.example .env
-# 缂栬緫 .env 濉叆 DEEPSEEK_API_KEY 鍜?GITHUB_TOKEN
+# 编辑 .env 填入 DEEPSEEK_API_KEY 和 GITHUB_TOKEN
 
-# 3. 杩愯 CLI 鍒嗘瀽
+# 3. 运行 CLI 分析
 python -m src.cli https://github.com/owner/repo/pull/42
 
-# 4. 鎴栧惎鍔?Web UI
+# 4. 或启动 Web UI
 streamlit run app.py
 ```
 
-## 鍔熻兘
+## 功能
 
-- **PR 鍙樻洿鎬荤粨** 鈥?3-5 鍙ヤ腑鏂囨憳瑕侊紝姒傝堪鏈 PR 鐨勭洰鐨勫拰鏀瑰姩鑼冨洿
-- **椋庨櫓浠ｇ爜璇嗗埆** 鈥?妫€娴嬪畨鍏ㄦ紡娲炪€佺┖鎸囬拡銆佸苟鍙戦棶棰樸€佽祫婧愭硠婕忕瓑锛屾瘡鏉″甫缃俊搴﹁瘎鍒?- **Review 寤鸿鐢熸垚** 鈥?閽堝浠ｇ爜鍙鎬с€佹€ц兘銆佹渶浣冲疄璺垫彁鍑哄叿浣撴敼杩涘缓璁?- **涓婁笅鏂囧寮?* 鈥?鍏宠仈 Issue 寮曠敤銆乬it blame 淇℃伅銆佹枃妗ｅ彉鏇村垎鏋?- **璇姤鎺у埗** 鈥?姣忔潯鍙戠幇甯?1-5 缃俊搴﹁瘎鍒嗭紝鍘婚噸锛屼綆缃俊搴︽爣娉?寰呬汉宸ョ‘璁?
-- **鍙屾牸寮忔姤鍛?* 鈥?鍚屾椂杈撳嚭 Markdown 鍜屼氦浜掑紡鍗曟枃浠?HTML锛堝崱鐗囧竷灞€銆佺疆淇″害绛涢€夈€佹墜椋庣惔鎶樺彔锛?- **Web UI** 鈥?Streamlit 鐣岄潰锛屾敮鎸佽繘搴︽潯銆佸巻鍙茶褰曘€佷竴閿鍑?
-## 鐢ㄦ硶
+- **PR 变更总结** — 3-5 句中文摘要，概述本次 PR 的目的和改动范围
+- **风险代码识别** — 检测安全漏洞、空指针、并发问题、资源泄漏等，每条带置信度评分
+- **Review 建议生成** — 针对代码可读性、性能、最佳实践提出具体改进建议
+- **上下文增强** — 关联 Issue 引用、git blame 信息、文档变更分析
+- **误报控制** — 每条发现带 1-5 置信度评分，去重，低置信度标注"待人工确认"
+- **双格式报告** — 同时输出 Markdown 和交互式单文件 HTML（卡片布局、置信度筛选、手风琴折叠）
+- **Web UI** — Streamlit 界面，支持进度条、历史记录、一键导出
 
-### CLI 妯″紡
+## 用法
+
+### CLI 模式
 
 ```bash
-# 鍩烘湰鐢ㄦ硶
+# 基本用法
 python -m src.cli https://github.com/owner/repo/pull/42
 
-# 鎸囧畾杈撳嚭鐩綍
+# 指定输出目录
 python -m src.cli https://github.com/owner/repo/pull/42 -o ./reports
 
-# 閫氳繃 CLI 浼犲叆 GitHub Token
+# 通过 CLI 传入 GitHub Token
 python -m src.cli https://github.com/owner/repo/pull/42 --github-token ghp_xxx
 ```
 
-### Web UI 妯″紡
+### Web UI 模式
 
 ```bash
 streamlit run app.py
-# 娴忚鍣ㄨ闂?http://localhost:8501
-# 渚ц竟鏍忚緭鍏?PR 鍦板潃 鈫?鐐瑰嚮鍒嗘瀽 鈫?鏌ョ湅杩涘害鏉″拰缁撴灉
+# 浏览器访问 http://localhost:8501
+# 侧边栏输入 PR 地址 → 点击分析 → 查看进度条和结果
 ```
 
-## 椤圭洰缁撴瀯
+## 项目结构
 
 ```
 ai-pr-reviewer/
-鈹溾攢鈹€ app.py                 # Streamlit Web UI
-鈹溾攢鈹€ .streamlit/            # Streamlit 閰嶇疆
-鈹溾攢鈹€ src/
-鈹?  鈹溾攢鈹€ cli.py             # CLI 鍏ュ彛
-鈹?  鈹溾攢鈹€ pipeline.py        # 鍏ㄩ摼璺紪鎺?鈹?  鈹溾攢鈹€ models.py          # 鏁版嵁妯″瀷
-鈹?  鈹溾攢鈹€ config/settings.py # 闆嗕腑閰嶇疆
-鈹?  鈹溾攢鈹€ fetcher/           # GitHub API 鏁版嵁鑾峰彇
-鈹?  鈹溾攢鈹€ parser/            # Diff 缁撴瀯鍖栬В鏋?鈹?  鈹溾攢鈹€ analyzer/          # 鍒嗘瀽寮曟搸 + 5 涓垎鏋愬櫒
-鈹?  鈹溾攢鈹€ llm/               # LLM 瀹㈡埛绔?+ Prompt 妯℃澘
-鈹?  鈹斺攢鈹€ reporter/          # 鎶ュ憡鐢熸垚 + 缃俊搴﹁瘎鍒?鈹溾攢鈹€ tests/                 # 鍗曞厓娴嬭瘯
-鈹溾攢鈹€ reports/               # 鐢熸垚鐨勬姤鍛婏紙gitignore锛?鈹溾攢鈹€ PRODUCT.md             # 浜у搧璁捐鏂囨。
-鈹斺攢鈹€ AGENTS.md              # 寮€鍙戣鑼?```
+├── app.py                 # Streamlit Web UI
+├── .streamlit/            # Streamlit 配置
+├── src/
+│   ├── cli.py             # CLI 入口
+│   ├── pipeline.py        # 全链路编排
+│   ├── models.py          # 数据模型
+│   ├── config/settings.py # 集中配置
+│   ├── fetcher/           # GitHub API 数据获取
+│   ├── parser/            # Diff 结构化解析
+│   ├── analyzer/          # 分析引擎 + 5 个分析器
+│   ├── llm/               # LLM 客户端 + Prompt 模板
+│   └── reporter/          # 报告生成 + 置信度评分
+├── tests/                 # 单元测试
+├── reports/               # 生成的报告（gitignore）
+├── PRODUCT.md             # 产品设计文档
+└── AGENTS.md              # 开发规范
+```
 
-## 璁捐鎬濊矾
+## 设计思路
 
-### 妯″瀷閫夋嫨
+### 模型选择
 
-閫夌敤 **DeepSeek-V4锛坉eepseek-chat锛?*锛?
-- **鎴愭湰浣?* 鈥?API 浠锋牸绾︿负 GPT-4o 鐨?1/10锛屽崟娆?PR 鍒嗘瀽浠呭嚑鍒嗛挶
-- **涓枃濂?* 鈥?涓枃鐞嗚В鍜岀敓鎴愯川閲忎紭绉€锛孯eview 寤鸿琛ㄨ揪鑷劧
-- **鍏煎鎬у己** 鈥?瀹屽叏鍏煎 OpenAI API 鍗忚锛岄€氳繃 `openai` SDK 璋冪敤锛孡LM 鎶借薄灞傦紙`llm/client.py`锛夊彧闇€淇敼 `LLM_API_BASE` 鍜?`LLM_MODEL` 閰嶇疆鍗冲彲鍒囨崲鍒板叾浠?OpenAI 鍏煎鏈嶅姟
+选用 **DeepSeek-V4（deepseek-chat）**：
 
-### 涓婁笅鏂囪幏鍙栨柟寮?
-绯荤粺閫氳繃浠ヤ笅閫斿緞鑾峰彇 PR diff 涔嬪鐨勪笂涓嬫枃锛?
-1. **鍏宠仈 Issue** 鈥?浠?PR body 涓彁鍙?`#123` 鏍煎紡鐨?Issue 寮曠敤
-2. **git blame** 鈥?閫氳繃 GitHub API 鏌ヨ鍙樻洿鏂囦欢鐨勪富瑕佺淮鎶よ€咃紝甯姪璇勫鑰呬簡瑙ｄ唬鐮佸綊灞?3. **鏂囨。鍙樻洿鎰熺煡** 鈥?璇嗗埆 `.md` 绛夋枃妗ｆ枃浠剁殑鍙樻洿锛岃緟鍔╃悊瑙?PR 鐨勪笟鍔¤儗鏅?
-### 鏈潵鎵╁睍鏂瑰悜
+- **成本低** — API 价格约为 GPT-4o 的 1/10，单次 PR 分析仅几分钱
+- **中文好** — 中文理解和生成质量优秀，Review 建议表达自然
+- **兼容性强** — 完全兼容 OpenAI API 协议，通过 `openai` SDK 调用，LLM 抽象层（`llm/client.py`）只需修改 `LLM_API_BASE` 和 `LLM_MODEL` 配置即可切换到其他 OpenAI 兼容服务
 
-鏋舵瀯璁捐鏀寔浠ヤ笅鏂瑰悜鐨勬墿灞曪細
+### 上下文获取方式
 
-- **澶氭ā鍨嬫敮鎸?* 鈥?`llm/client.py` 閫氳繃閰嶇疆鍒囨崲锛屽彲鎺ュ叆 OpenAI銆丆laude銆佽眴鍖呯瓑
-- **澶氬钩鍙?* 鈥?`fetcher/base.py` 鎶借薄鎺ュ彛锛屾柊澧?`gitlab.py` / `gitee.py` 鍗冲彲鎵╁睍
-- **澧為噺鍒嗘瀽** 鈥?Engine 鍒嗘壒绛栫暐宸叉敮鎸佹寜鏂囦欢璋冨害锛屽彲鎵╁睍涓哄閲?review锛堝彧鍒嗘瀽鏂板 commit锛?- **鑷畾涔夎鍒?* 鈥?Prompt 妯℃澘锛坄llm/prompts/`锛夌嫭绔嬩簬浠ｇ爜锛岃瘎瀹¤鍒欏彲鐏垫椿璋冩暣
-- **CI 闆嗘垚** 鈥?Pipeline 璁捐涓烘棤鐘舵€佸嚱鏁帮紝鍙洿鎺ュ祵鍏?GitHub Actions / GitLab CI
+系统通过以下途径获取 PR diff 之外的上下文：
 
-## 鎶€鏈爤
+1. **关联 Issue** — 从 PR body 中提取 `#123` 格式的 Issue 引用
+2. **git blame** — 通过 GitHub API 查询变更文件的主要维护者，帮助评审者了解代码归属
+3. **文档变更感知** — 识别 `.md` 等文档文件的变更，辅助理解 PR 的业务背景
 
-| 缁勪欢 | 閫夊瀷 |
+### 未来扩展方向
+
+架构设计支持以下方向的扩展：
+
+- **多模型支持** — `llm/client.py` 通过配置切换，可接入 OpenAI、Claude、豆包等
+- **多平台** — `fetcher/base.py` 抽象接口，新增 `gitlab.py` / `gitee.py` 即可扩展
+- **增量分析** — Engine 分批策略已支持按文件调度，可扩展为增量 review（只分析新增 commit）
+- **自定义规则** — Prompt 模板（`llm/prompts/`）独立于代码，评审规则可灵活调整
+- **CI 集成** — Pipeline 设计为无状态函数，可直接嵌入 GitHub Actions / GitLab CI
+
+## 技术栈
+
+| 组件 | 选型 |
 |------|------|
-| 璇█ | Python 3.11+ |
+| 语言 | Python 3.11+ |
 | LLM | DeepSeek-V4 |
 | LLM SDK | openai |
 | HTTP | httpx |
 | CLI | click |
-| Web UI | Streamlit + 绾?HTML 鍗曟枃浠?|
+| Web UI | Streamlit + 纯 HTML 单文件 |
 
-## 杩愯娴嬭瘯
+## 运行测试
 
 ```bash
 pip install pytest
