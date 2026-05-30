@@ -1,4 +1,4 @@
-﻿[project]
+[project]
 name = "ai-pr-reviewer"
 version = "0.1.0"
 description = "AI PR Review 助手 — 自动分析 GitHub Pull Request"
@@ -7,6 +7,7 @@ dependencies = [
     "click>=8.0",
     "httpx>=0.24",
     "openai>=1.0",
+    "streamlit>=1.28",
     "python-dotenv>=1.0",
 ]
 

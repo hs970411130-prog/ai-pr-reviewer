@@ -1,19 +1,24 @@
-﻿# AI PR Review 助手
+# AI PR Review 助手
 
 自动分析 GitHub Pull Request 的 AI 代码评审工具。指定 PR URL，一键获取变更摘要、风险识别和 Review 建议。
 
 ## 快速开始
 
 ```bash
-# 1. 安装依赖
-pip install -r requirements.txt
+# 1. 克隆并安装
+git clone https://github.com/hs970411130-prog/ai-pr-reviewer.git
+cd ai-pr-reviewer
+pip install -e .
 
-# 2. 设置环境变量
-set DEEPSEEK_API_KEY=your_deepseek_api_key
-set GITHUB_TOKEN=your_github_token
+# 2. 配置 API Key（复制 .env.example 为 .env 并填入）
+cp .env.example .env
+# 编辑 .env 填入 DEEPSEEK_API_KEY 和 GITHUB_TOKEN
 
-# 3. 运行分析
+# 3. 运行 CLI 分析
 python -m src.cli https://github.com/owner/repo/pull/42
+
+# 4. 或启动 Web UI
+streamlit run app.py
 ```
 
 ## 功能
@@ -23,9 +28,12 @@ python -m src.cli https://github.com/owner/repo/pull/42
 - **Review 建议生成** — 针对代码可读性、性能、最佳实践提出具体改进建议
 - **上下文增强** — 关联 Issue 引用、git blame 信息、文档变更分析
 - **误报控制** — 每条发现带 1-5 置信度评分，去重，低置信度标注"待人工确认"
-- **双格式报告** — 同时输出 Markdown 和单文件 HTML
+- **双格式报告** — 同时输出 Markdown 和交互式单文件 HTML（卡片布局、置信度筛选、手风琴折叠）
+- **Web UI** — Streamlit 界面，支持进度条、历史记录、一键导出
 
 ## 用法
+
+### CLI 模式
 
 ```bash
 # 基本用法
@@ -38,19 +46,34 @@ python -m src.cli https://github.com/owner/repo/pull/42 -o ./reports
 python -m src.cli https://github.com/owner/repo/pull/42 --github-token ghp_xxx
 ```
 
+### Web UI 模式
+
+```bash
+streamlit run app.py
+# 浏览器访问 http://localhost:8501
+# 侧边栏输入 PR 地址 → 点击分析 → 查看进度条和结果
+```
+
 ## 项目结构
 
 ```
-src/
-├── cli.py              # CLI 入口
-├── pipeline.py         # 全链路编排
-├── models.py           # 数据模型
-├── config/settings.py  # 集中配置
-├── fetcher/            # GitHub API 数据获取
-├── parser/             # Diff 结构化解析
-├── analyzer/           # 分析引擎 + 5 个分析器
-├── llm/                # LLM 客户端 + Prompt 模板
-└── reporter/           # 报告生成 + 置信度评分
+ai-pr-reviewer/
+├── app.py                 # Streamlit Web UI
+├── .streamlit/            # Streamlit 配置
+├── src/
+│   ├── cli.py             # CLI 入口
+│   ├── pipeline.py        # 全链路编排
+│   ├── models.py          # 数据模型
+│   ├── config/settings.py # 集中配置
+│   ├── fetcher/           # GitHub API 数据获取
+│   ├── parser/            # Diff 结构化解析
+│   ├── analyzer/          # 分析引擎 + 5 个分析器
+│   ├── llm/               # LLM 客户端 + Prompt 模板
+│   └── reporter/          # 报告生成 + 置信度评分
+├── tests/                 # 单元测试
+├── reports/               # 生成的报告（gitignore）
+├── PRODUCT.md             # 产品设计文档
+└── AGENTS.md              # 开发规范
 ```
 
 ## 设计思路
@@ -90,10 +113,11 @@ src/
 | LLM SDK | openai |
 | HTTP | httpx |
 | CLI | click |
-| Web UI | 纯 HTML 单文件 |
+| Web UI | Streamlit + 纯 HTML 单文件 |
 
 ## 运行测试
 
 ```bash
-python -m unittest discover -s tests -v
+pip install pytest
+pytest tests/ -v
 ```

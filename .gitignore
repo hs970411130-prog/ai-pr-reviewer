@@ -1,4 +1,4 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -9,8 +9,12 @@ dist/
 .idea/
 
 # Reports (generated)
+reports/
 pr-review-*.md
 pr-review-*.html
+
+# Tests
+.pytest_cache/
 
 # Secrets
 .env

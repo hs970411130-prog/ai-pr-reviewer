@@ -1,4 +1,4 @@
-﻿# AGENTS.md
+# AGENTS.md
 
 ## 项目概要
 
@@ -65,7 +65,9 @@
 ### 项目结构
 ```
 ai-pr-reviewer/
-├── src/
+├── app.py                 # Streamlit Web UI
+├── .streamlit/            # Streamlit 配置
+
 │   ├── __init__.py
 │   ├── cli.py              # CLI 入口（click），只做参数解析
 │   ├── pipeline.py         # 全链路编排：Fetcher → Parser → Engine → Reporter
@@ -113,7 +115,7 @@ ai-pr-reviewer/
 | LLM SDK | `openai` 包 |
 | HTTP | `httpx` |
 | CLI | `click` |
-| Web UI | 纯 HTML 单文件 |
+| Web UI | Streamlit + 纯 HTML 单文件 |
 | GitHub API | REST API，Token 认证 |
 
 ### 核心数据流
