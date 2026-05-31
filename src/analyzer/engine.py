@@ -3,10 +3,15 @@
 这是分块策略的唯一执行点：Parser 给全量，Engine 决定谁看什么。
 """
 
+import logging
+import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.config.settings import SKIP_EXTENSIONS, MAX_FILES_PER_BATCH, MAX_CHARS_PER_FILE
 from src.models import FileChange
+
+logger = logging.getLogger(__name__)
+_MAX_CONCURRENT_BATCHES = 5
 
 
 def filter_code_files(changes: list[FileChange]) -> list[FileChange]:
@@ -31,7 +36,7 @@ def chunk_files(changes: list[FileChange]) -> list[list[FileChange]]:
 
     for change in changes:
         if len(change.diff) > MAX_CHARS_PER_FILE:
-            continue  # 跳过大文件
+            continue
         current_batch.append(change)
         if len(current_batch) >= MAX_FILES_PER_BATCH:
             batches.append(current_batch)
@@ -70,7 +75,8 @@ def run_analysis(
         return []
 
     results: list = []
-    with ThreadPoolExecutor(max_workers=len(batches)) as executor:
+    max_workers = min(len(batches), _MAX_CONCURRENT_BATCHES)
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(analyze_fn, batch): batch for batch in batches}
         for future in as_completed(futures):
             try:
@@ -78,10 +84,7 @@ def run_analysis(
             except Exception as e:
                 batch = futures[future]
                 filenames = [f.filename for f in batch]
-                # Log error but don't inject dict into results -
-                # downstream code expects typed objects (RiskFinding/SuggestionFinding)
-                import logging, traceback
-                logging.warning(f"Analysis failed for {filenames}: {e}")
-                logging.debug(traceback.format_exc())
+                logger.warning("Analysis failed for %s: %s", filenames, e)
+                logger.debug(traceback.format_exc())
 
     return results
