@@ -1,4 +1,4 @@
-﻿# PRODUCT.md
+# PRODUCT.md
 
 ## Project
 
