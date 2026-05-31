@@ -1,5 +1,6 @@
 ﻿"""GitHub REST API PR 数据获取器。"""
 
+import logging
 import re
 from urllib.parse import urlparse
 
@@ -11,6 +12,8 @@ from src.models import PRMetadata, FileChange, ChangeType
 
 
 GITHUB_API = "https://api.github.com"
+PER_PAGE = 100
+logger = logging.getLogger(__name__)
 
 
 def parse_pr_url(url: str) -> tuple[str, str, int]:
@@ -23,7 +26,6 @@ def parse_pr_url(url: str) -> tuple[str, str, int]:
     path_parts = parsed.path.strip("/").split("/")
     if len(path_parts) >= 4 and path_parts[2] == "pull":
         return path_parts[0], path_parts[1], int(path_parts[3])
-    # try to match "github.com/owner/repo/pull/123" even with extra segments
     for i, part in enumerate(path_parts):
         if part == "pull" and i >= 2 and i + 1 < len(path_parts):
             return path_parts[i - 2], path_parts[i - 1], int(path_parts[i + 1])
@@ -48,10 +50,6 @@ class GitHubFetcher(BaseFetcher):
             follow_redirects=True,
         )
 
-    # ------------------------------------------------------------------
-    # BaseFetcher 实现
-    # ------------------------------------------------------------------
-
     def fetch_metadata(self, owner: str, repo: str, pr_number: int) -> PRMetadata:
         resp = self._client.get(f"/repos/{owner}/{repo}/pulls/{pr_number}")
         resp.raise_for_status()
@@ -61,7 +59,7 @@ class GitHubFetcher(BaseFetcher):
             repo=repo,
             pr_number=pr_number,
             title=data.get("title", ""),
-            body=data.get("body", "") or "",
+            body=data.get("body", ""),
             author=data.get("user", {}).get("login", ""),
             base_branch=data.get("base", {}).get("ref", ""),
             head_branch=data.get("head", {}).get("ref", ""),
@@ -70,10 +68,17 @@ class GitHubFetcher(BaseFetcher):
     def fetch_diff(self, owner: str, repo: str, pr_number: int) -> list[FileChange]:
         resp = self._client.get(
             f"/repos/{owner}/{repo}/pulls/{pr_number}/files",
-            params={"per_page": 100},
+            params={"per_page": PER_PAGE},
         )
         resp.raise_for_status()
         files = resp.json()
+
+        if len(files) == PER_PAGE:
+            logger.warning(
+                "PR 文件数达到单页上限 %d，可能存在未获取的文件。"
+                "分页功能待实现。",
+                PER_PAGE,
+            )
 
         result: list[FileChange] = []
         for f in files:
@@ -86,10 +91,10 @@ class GitHubFetcher(BaseFetcher):
             result.append(FileChange(
                 filename=f["filename"],
                 change_type=change_type,
+                patch=f.get("patch", ""),
                 diff=f.get("patch", ""),
                 additions=f.get("additions", 0),
                 deletions=f.get("deletions", 0),
-                patch=f.get("patch", ""),
                 previous_filename=f.get("previous_filename", ""),
             ))
         return result
