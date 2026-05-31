@@ -1,11 +1,10 @@
-"""CLI 入口。"""
+﻿"""CLI 入口。"""
 
 import os
 import sys
 
 import click
 from dotenv import load_dotenv
-load_dotenv()
 
 from src.pipeline import run_and_save
 
@@ -32,6 +31,8 @@ def main(pr_url: str, github_token: str, output_dir: str, version: bool):
 
     PR_URL: GitHub PR 地址，如 https://github.com/owner/repo/pull/42
     """
+    load_dotenv()
+
     if version:
         click.echo(f"ai-pr-reviewer v{VERSION}")
         return
@@ -49,18 +50,17 @@ def main(pr_url: str, github_token: str, output_dir: str, version: bool):
     click.echo("")
 
     try:
-        report = run_and_save(pr_url, github_token=github_token, output_dir=output_dir)
+        report, md_path, html_path = run_and_save(
+            pr_url, github_token=github_token, output_dir=output_dir
+        )
     except Exception as e:
-        click.echo(f"分析失败: {e}", err=True)
+        click.echo(f"分析失败: {type(e).__name__}: {e}", err=True)
         sys.exit(1)
 
-    dir_name = f"{report.pr_metadata.owner}-{report.pr_metadata.repo}-{report.pr_metadata.pr_number}"
-    report_dir = os.path.join(os.path.abspath(output_dir), dir_name)
     click.echo("[OK] 报告已生成:")
-    click.echo(f"   {os.path.join(report_dir, 'report.md')}")
-    click.echo(f"   {os.path.join(report_dir, 'report.html')}")
+    click.echo(f"   {md_path}")
+    click.echo(f"   {html_path}")
 
-    # 简要输出
     click.echo(f"\n[Summary] 摘要: {report.summary}")
     click.echo(f"[Risk]  风险发现: {len(report.risks)} 条")
     click.echo(f"[Suggestion] Review 建议: {len(report.suggestions)} 条")
